@@ -1,0 +1,67 @@
+
+:root { color-scheme: light; --verde:#146b5b; --verde-escuro:#0d4f43; --fundo:#f3f7f5; --texto:#1c312a; --secundario:#587167; --borda:#d6e4dd; --branco:#fff; --erro:#a42d29; }
+* { box-sizing:border-box; }
+html { font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; background:var(--fundo); color:var(--texto); }
+body { margin:0; min-width:310px; }
+button,input,textarea,select { font:inherit; }
+button { cursor:pointer; border:none; background:var(--verde); color:white; border-radius:9px; padding:11px 14px; font-weight:650; }
+button:hover { background:var(--verde-escuro); }
+button:disabled { opacity:.6; cursor:not-allowed; }
+input,textarea,select { width:100%; border:1px solid var(--borda); border-radius:9px; padding:10px 12px; color:var(--texto); background:var(--branco); }
+input:focus-visible,textarea:focus-visible,select:focus-visible,button:focus-visible,a:focus-visible { outline:3px solid #75bdaa; outline-offset:2px; }
+a { color:var(--verde-escuro); }
+label { display:block; font-size:.83rem; font-weight:700; margin:8px 0 5px; }
+p { line-height:1.5; }
+h1,h2 { margin:0; letter-spacing:-.025em; }
+h1 { font-size:1.34rem; } h2 { font-size:1.06rem; }
+.cabecalho { display:flex; align-items:center; justify-content:space-between; gap:18px; padding:13px 22px; background:var(--branco); border-bottom:1px solid var(--borda); min-height:72px; }
+.marca { display:flex; gap:10px; align-items:center; }
+.marca-icone { display:grid; place-items:center; border-radius:12px; width:42px; height:42px; background:#dcf2e9; color:var(--verde); font-size:1.7rem; }
+.marca strong { display:block; font-size:1.35rem; } .marca small { display:block; color:var(--secundario); font-size:.75rem; }
+.cabecalho-direita { display:flex; gap:12px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
+.selo { background:#eaf4ee; border-radius:30px; padding:7px 10px; color:var(--verde-escuro); font-size:.77rem; font-weight:700; }
+.status-api { color:var(--secundario); font-size:.77rem; } .status-api.ok { color:var(--verde); } .status-api.erro { color:var(--erro); }
+.layout { display:grid; grid-template-columns:minmax(310px,410px) minmax(320px,1fr); min-height:calc(100vh - 111px); }
+.painel { padding:14px; display:flex; flex-direction:column; gap:12px; max-height:calc(100vh - 111px); overflow:auto; border-right:1px solid var(--borda); }
+.cartao { padding:18px; border:1px solid var(--borda); background:var(--branco); border-radius:15px; box-shadow:0 3px 12px rgba(13,79,67,.035); }
+.cabeca-secao { margin-bottom:13px; } .cabeca-secao p { margin:5px 0 0; color:var(--secundario); font-size:.83rem; }
+.cabeca-lista { display:flex; justify-content:space-between; align-items:flex-start; }
+.contador { display:grid; place-items:center; min-width:28px; height:28px; padding:0 7px; border-radius:100px; color:var(--verde); background:#e5f3ed; font-size:.8rem; font-weight:700; }
+.linha-busca { display:flex; gap:7px; align-items:stretch; } .linha-busca input,.linha-busca select { min-width:0; flex:1; }
+.mensagem-pequena { color:var(--secundario); font-size:.77rem; line-height:1.4; margin:9px 0; }
+.mensagem-pequena.erro { color:var(--erro); } .mensagem-pequena.sucesso { color:var(--verde); }
+.resultados-endereco { display:grid; gap:4px; }
+.resultado-endereco { text-align:left; background:#f0f7f3; color:var(--texto); font-size:.8rem; font-weight:500; white-space:normal; }
+.resultado-endereco:hover { color:var(--branco); }
+.acoes-localizacao { display:flex; flex-direction:column; align-items:flex-start; gap:2px; margin-top:10px; }
+.botao-secundario { color:var(--verde-escuro); border:1px solid var(--borda); background:#f0f7f3; }
+.botao-secundario:hover { background:#e0f1e9; color:var(--verde-escuro); }
+.botao-perigo { background:#fff0ef; color:var(--erro); border:1px solid #f5c4c1; }
+.botao-perigo:hover { background:#fce1df; }
+.lista-pontos { display:grid; gap:8px; max-height:245px; overflow:auto; }
+.item-ponto { width:100%; text-align:left; border-radius:9px; padding:11px 12px; background:#f6faf7; border:1px solid var(--borda); color:var(--texto); }
+.item-ponto:hover { background:#e7f5ed; color:var(--texto); }
+.item-ponto strong { display:block; font-size:.87rem; }
+.item-ponto small { display:block; margin-top:3px; color:var(--secundario); font-size:.76rem; }
+.form-ponto { display:flex; flex-direction:column; } .form-ponto textarea { resize:vertical; }
+.grade-coordenadas { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.separador { border-top:1px solid var(--borda); margin:15px 0 8px; }
+.acoes-form { display:flex; gap:7px; flex-wrap:wrap; margin-top:9px; }
+.secao-mapa { position:relative; min-height:450px; } #mapa { width:100%; height:100%; min-height:450px; background:#eaf0ec; z-index:1; }
+.dica-mapa { position:absolute; z-index:500; bottom:25px; left:50%; transform:translateX(-50%); background:white; border-radius:8px; padding:9px 13px; font-size:.76rem; box-shadow:0 3px 15px #0002; text-align:center; pointer-events:none; }
+.rodape { padding:12px 20px; font-size:.75rem; background:var(--branco); color:var(--secundario); border-top:1px solid var(--borda); }
+.leaflet-popup-content button { margin-top:7px; }
+.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+.pular { position:absolute; left:-999px; top:3px; z-index:2000; padding:10px; background:white; }
+.pular:focus { left:3px; }
+@media (max-width:900px) {
+  .layout { grid-template-columns:1fr; display:flex; flex-direction:column-reverse; }
+  .painel { max-height:none; overflow:visible; border-right:0; }
+  .secao-mapa { height:53vh; min-height:350px; } #mapa { min-height:350px; }
+  .cartao { padding:15px; } .dica-mapa { bottom:14px; white-space:normal; width:max-content; max-width:85%; }
+}
+@media (max-width:430px) {
+  .cabecalho { padding:12px; } .selo { display:none; }
+  .marca strong { font-size:1.2rem; } .marca-icone { width:36px; height:36px; }
+  .linha-busca { flex-wrap:wrap; } .linha-busca input { min-width:150px; }
+}
