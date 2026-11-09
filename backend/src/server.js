@@ -4,6 +4,7 @@ const express = require('express');
 const cors = require('cors');
 const pool = require('./db');
 const pontosRoutes = require('./routes/pontos');
+const protegerEscrita = require('./middlewares/protegerEscrita');
 
 const app = express();
 
@@ -25,7 +26,7 @@ app.use(cors({
 
 // Permite receber dados em JSON
 app.use(express.json());
-app.use('/api/pontos', pontosRoutes);
+app.use('/api/pontos', protegerEscrita, pontosRoutes);
 // Rota para verificar o funcionamento da API
 app.get('/api/health', (req, res) => {
   res.status(200).json({
