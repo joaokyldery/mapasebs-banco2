@@ -75,6 +75,134 @@ router.post('/', async (req, res) => {
   }
 });
 
+ // GET - Buscar pontos próximos de uma localização
+router.get('/proximos', async (req, res) => {
+  const { latitude, longitude, raio = 2000 } = req.query;
+
+  const lat = Number(latitude);
+  const lon = Number(longitude);
+  const distancia = Number(raio);
+
+  // Validar localização e raio
+  if (
+    latitude === undefined ||
+    longitude === undefined ||
+    !Number.isFinite(lat) ||
+    !Number.isFinite(lon) ||
+    !Number.isFinite(distancia) ||
+    lat < -90 || lat > 90 ||
+    lon < -180 || lon > 180 ||
+    distancia <= 0 || distancia > 50000
+  ) {
+    return res.status(400).json({
+      mensagem: 'Latitude, longitude ou raio inválido'
+    });
+  }
+
+  try {
+    const resultado = await pool.query(
+      `SELECT
+         id, nome, descricao, tipo_material, endereco,
+         extensions.ST_Y(localizacao) AS latitude,
+         extensions.ST_X(localizacao) AS longitude,
+         ROUND(
+           extensions.ST_Distance(
+             localizacao::extensions.geography,
+             extensions.ST_SetSRID(
+               extensions.ST_MakePoint($1, $2), 4326
+             )::extensions.geography
+           )::numeric
+         ) AS distancia_metros
+       FROM public.pontos_coleta
+       WHERE extensions.ST_DWithin(
+         localizacao::extensions.geography,
+         extensions.ST_SetSRID(
+           extensions.ST_MakePoint($1, $2), 4326
+         )::extensions.geography,
+         $3
+       )
+       ORDER BY distancia_metros ASC`,
+      [lon, lat, distancia]
+    );
+
+    return res.json(resultado.rows);
+
+  } catch (erro) {
+    console.error('Erro na busca por distância:', erro.message);
+
+    return res.status(500).json({
+      mensagem: 'Erro ao buscar pontos próximos'
+    });
+  }
+});
+
+ // GET - Buscar pontos dentro da area visivel do mapa
+router.get('/', async (req, res) => {
+  const { sul, norte, oeste, leste } = req.query;
+
+  // Verifica se todos os parametros foram informados
+  const valores = [sul, norte, oeste, leste];
+
+  if (
+    valores.some(valor =>
+      typeof valor !== 'string' || valor.trim() === ''
+    )
+  ) {
+    return res.status(400).json({
+      mensagem: 'Informe os limites da area do mapa'
+    });
+  }
+
+  // Converte os parametros para numeros
+  const latSul = Number(sul);
+  const latNorte = Number(norte);
+  const lonOeste = Number(oeste);
+  const lonLeste = Number(leste);
+
+  // Valida os limites geograficos
+  if (
+    ![latSul, latNorte, lonOeste, lonLeste]
+      .every(Number.isFinite) ||
+    latSul < -90 ||
+    latNorte > 90 ||
+    lonOeste < -180 ||
+    lonLeste > 180 ||
+    latSul >= latNorte ||
+    lonOeste >= lonLeste
+  ) {
+    return res.status(400).json({
+      mensagem: 'Limites geograficos invalidos'
+    });
+  }
+
+  try {
+    const resultado = await pool.query(
+      `SELECT
+         id, nome, descricao, tipo_material, endereco,
+         extensions.ST_Y(localizacao) AS latitude,
+         extensions.ST_X(localizacao) AS longitude
+       FROM public.pontos_coleta
+       WHERE extensions.ST_Intersects(
+         localizacao,
+         extensions.ST_MakeEnvelope(
+           $1, $2, $3, $4, 4326
+         )
+       )
+       ORDER BY id`,
+      [lonOeste, latSul, lonLeste, latNorte]
+    );
+
+    return res.json(resultado.rows);
+
+  } catch (erro) {
+    console.error('Erro ao buscar area:', erro.message);
+
+    return res.status(500).json({
+      mensagem: 'Erro ao buscar pontos da area'
+    });
+  }
+});
+
 // Consultar ponto de coleta pelo ID
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
