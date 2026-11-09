@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const pool = require('./db');
+const pontosRoutes = require('./routes/pontos');
 
 const app = express();
 
@@ -24,7 +25,7 @@ app.use(cors({
 
 // Permite receber dados em JSON
 app.use(express.json());
-
+app.use('/api/pontos', pontosRoutes);
 // Rota para verificar o funcionamento da API
 app.get('/api/health', (req, res) => {
   res.status(200).json({
