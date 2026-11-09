@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#146b5b" />
+  <meta name="description" content="MapaSEBS: encontre e cadastre pontos de coleta de recicláveis em um mapa." />
+  <title>MapaSEBS · Pontos de coleta</title>
+  <link rel="preconnect" href="https://unpkg.com" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoTqD5aC6uV+4=" crossorigin="" />
+  <link rel="stylesheet" href="./css/style.css" />
+</head>
+<body>
+  <a class="pular" href="#mapa">Ir para o mapa</a>
+  <header class="cabecalho">
+    <div class="marca"><span class="marca-icone" aria-hidden="true">♻</span><div><strong>MapaSEBS</strong><small>Banco de Dados II · ADS</small></div></div>
+    <div class="cabecalho-direita"><span class="selo">Pontos de coleta</span><span id="statusApi" class="status-api" role="status">Conectando à API...</span></div>
+  </header>
+
+  <main class="layout">
+    <aside class="painel" aria-label="Ferramentas e pontos de coleta">
+      <section class="cartao">
+        <div class="cabeca-secao"><h1>Encontre um ecoponto</h1><p>Pesquise um lugar e explore o mapa.</p></div>
+        <form id="formBusca" class="form-busca">
+          <label for="buscaEndereco">Pesquisar endereço ou localidade</label>
+          <div class="linha-busca"><input id="buscaEndereco" name="buscaEndereco" placeholder="Ex.: Centro, Sousa - PB" autocomplete="street-address" minlength="3" required /><button type="submit" id="btnPesquisarEndereco">Buscar</button></div>
+        </form>
+        <p id="statusBusca" class="mensagem-pequena" role="status" aria-live="polite">Buscas de endereço são feitas apenas ao clicar em Buscar.</p>
+        <div id="resultadosEndereco" class="resultados-endereco" aria-label="Resultados da pesquisa"></div>
+        <div class="acoes-localizacao"><button type="button" class="botao-secundario" id="btnUsarLocalizacao">◎ Minha localização</button><span id="statusLocalizacao" class="mensagem-pequena">Localização ainda não autorizada.</span></div>
+      </section>
+
+      <section class="cartao">
+        <div class="cabeca-secao"><h2>Pontos próximos</h2><p>Distância a partir da sua posição ou do centro do mapa.</p></div>
+        <div class="linha-busca"><label for="seletorRaio" class="sr-only">Raio da busca</label><select id="seletorRaio"><option value="500">500 metros</option><option value="2000" selected>2 quilômetros</option><option value="5000">5 quilômetros</option><option value="10000">10 quilômetros</option></select><button type="button" id="btnBuscarProximos">Procurar</button></div>
+        <p id="statusProximos" class="mensagem-pequena" role="status" aria-live="polite">Escolha um raio e clique em Procurar.</p>
+        <div id="listaProximos" class="lista-pontos"></div>
+      </section>
+
+      <section class="cartao">
+        <div class="cabeca-secao cabeca-lista"><div><h2>Na área do mapa</h2><p>Atualizado quando você movimenta o mapa.</p></div><span id="contadorPontos" class="contador">0</span></div>
+        <div id="listaPontos" class="lista-pontos" aria-live="polite"><p class="mensagem-pequena">Carregando pontos da região...</p></div>
+      </section>
+
+      <section class="cartao" id="secaoCadastro">
+        <div class="cabeca-secao"><h2 id="tituloFormulario">Cadastrar ponto</h2><p>Selecione a posição clicando no mapa ou escolhendo uma busca.</p></div>
+        <form id="formPonto" class="form-ponto">
+          <label for="nomePonto">Nome do ponto <span aria-hidden="true">*</span></label><input id="nomePonto" name="nome" maxlength="120" required placeholder="Ex.: Ecoponto Central" />
+          <label for="tipoMaterial">Materiais recebidos <span aria-hidden="true">*</span></label><input id="tipoMaterial" name="tipo_material" maxlength="160" required placeholder="Ex.: papel, plástico e vidro" />
+          <label for="enderecoPonto">Endereço</label><input id="enderecoPonto" name="endereco" maxlength="200" placeholder="Rua, bairro ou referência" />
+          <label for="descricaoPonto">Descrição</label><textarea id="descricaoPonto" name="descricao" maxlength="600" rows="3" placeholder="Informações adicionais"></textarea>
+          <div class="grade-coordenadas"><div><label for="latitudePonto">Latitude <span aria-hidden="true">*</span></label><input id="latitudePonto" name="latitude" type="number" step="any" min="-90" max="90" required placeholder="-6.76" /></div><div><label for="longitudePonto">Longitude <span aria-hidden="true">*</span></label><input id="longitudePonto" name="longitude" type="number" step="any" min="-180" max="180" required placeholder="-38.23" /></div></div>
+          <div class="separador"></div>
+          <label for="chaveAdmin">Chave administrativa <span aria-hidden="true">*</span></label><input id="chaveAdmin" name="chave" type="password" autocomplete="off" placeholder="Informe a chave para editar dados" />
+          <p class="mensagem-pequena">A chave é usada apenas nesta página, durante a sessão. Não é gravada em arquivos públicos.</p>
+          <p id="statusFormulario" class="mensagem-pequena" role="status" aria-live="polite"></p>
+          <div class="acoes-form"><button type="submit" id="btnSalvarPonto">Cadastrar ponto</button><button type="button" class="botao-secundario" id="btnCancelarEdicao">Limpar</button><button type="button" class="botao-perigo" id="btnExcluirPonto" hidden>Excluir</button></div>
+        </form>
+      </section>
+    </aside>
+
+    <section class="secao-mapa" aria-label="Mapa interativo">
+      <div id="mapa" role="application" aria-label="Mapa interativo de pontos de coleta" tabindex="0"></div>
+      <div class="dica-mapa">Toque no mapa para preencher a localização do cadastro</div>
+    </section>
+  </main>
+
+  <footer class="rodape">Projeto acadêmico · Dados do mapa © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a> · Geocodificação: <a href="https://nominatim.org/" target="_blank" rel="noopener noreferrer">Nominatim</a></footer>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>
