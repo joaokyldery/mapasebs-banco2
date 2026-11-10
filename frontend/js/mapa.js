@@ -4,6 +4,8 @@ const POSICAO_INICIAL = [-6.76, -38.23];
 let mapa;
 let camadaPontos;
 let camadaUsuario;
+let camadaSelecao;
+let camadaRaio;
 
 export function iniciarMapa({ aoMover, aoClicar, aoEncontrarUsuario, aoFalharLocalizacao }) {
   if (!window.L) throw new Error('Leaflet nao carregado. Verifique a conexao com a internet.');
@@ -13,8 +15,14 @@ export function iniciarMapa({ aoMover, aoClicar, aoEncontrarUsuario, aoFalharLoc
     maxZoom: 19
   }).addTo(mapa);
   camadaPontos = L.layerGroup().addTo(mapa);
+  camadaSelecao = L.layerGroup().addTo(mapa);
+  camadaRaio = L.layerGroup().addTo(mapa);
   mapa.on('moveend', () => aoMover?.());
-  mapa.on('click', event => aoClicar?.(event.latlng.lat, event.latlng.lng));
+  mapa.on('click', event => {
+    const { lat, lng } = event.latlng;
+    mostrarLocalSelecionado(lat, lng);
+    aoClicar?.(lat, lng);
+  });
   // Exigencia do professor: solicitar geolocalizacao ao abrir o mapa.
   solicitarLocalizacao(aoEncontrarUsuario, aoFalharLocalizacao);
   return mapa;
@@ -55,6 +63,25 @@ export function centroDoMapa() {
 
 export function centralizar(latitude, longitude, zoom = 15) {
   mapa.setView([Number(latitude), Number(longitude)], zoom);
+}
+
+export function mostrarLocalSelecionado(latitude, longitude) {
+  camadaSelecao.clearLayers();
+
+  L.marker([latitude, longitude])
+    .addTo(camadaSelecao);
+}
+
+export function desenharRaioBusca(latitude, longitude, raioMetros) {
+  camadaRaio.clearLayers();
+
+  L.circle([latitude, longitude], {
+    radius: Number(raioMetros),
+    color: '#207bc5',
+    weight: 2,
+    fillColor: '#207bc5',
+    fillOpacity: 0.12
+  }).addTo(camadaRaio);
 }
 
 export function renderizarMarcadores(pontos, aoSelecionar) {

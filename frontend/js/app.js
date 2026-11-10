@@ -5,7 +5,8 @@ import {
 } from './api.js';
 import {
   iniciarMapa, obterLimites, centroDoMapa,
-  centralizar, renderizarMarcadores, solicitarLocalizacao
+  centralizar, renderizarMarcadores, solicitarLocalizacao,
+  desenharRaioBusca
 } from './mapa.js';
 import { pesquisarEndereco } from './geocodificacao.js';
 
@@ -147,6 +148,7 @@ $('btnCancelarEdicao').addEventListener('click', limparFormulario);
 $('btnBuscarProximos').addEventListener('click', async () => {
   const origem = estado.posicaoUsuario || centroDoMapa();
   const raio = Number($('seletorRaio').value);
+  desenharRaioBusca(origem.latitude, origem.longitude, raio);
   informar('statusProximos', 'Buscando pontos próximos...');
   try {
     const pontos = await listarProximos({ ...origem, raio });
