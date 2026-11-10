@@ -5,6 +5,7 @@ let mapa;
 let camadaPontos;
 let camadaUsuario;
 let camadaSelecao;
+let camadaRaio;
 
 export function iniciarMapa({ aoMover, aoClicar, aoEncontrarUsuario, aoFalharLocalizacao }) {
   if (!window.L) throw new Error('Leaflet nao carregado. Verifique a conexao com a internet.');
@@ -15,6 +16,7 @@ export function iniciarMapa({ aoMover, aoClicar, aoEncontrarUsuario, aoFalharLoc
   }).addTo(mapa);
   camadaPontos = L.layerGroup().addTo(mapa);
   camadaSelecao = L.layerGroup().addTo(mapa);
+  camadaRaio = L.layerGroup().addTo(mapa);
   mapa.on('moveend', () => aoMover?.());
   mapa.on('click', event => {
     const { lat, lng } = event.latlng;
@@ -68,6 +70,18 @@ export function mostrarLocalSelecionado(latitude, longitude) {
 
   L.marker([latitude, longitude])
     .addTo(camadaSelecao);
+}
+
+export function desenharRaioBusca(latitude, longitude, raioMetros) {
+  camadaRaio.clearLayers();
+
+  L.circle([latitude, longitude], {
+    radius: Number(raioMetros),
+    color: '#207bc5',
+    weight: 2,
+    fillColor: '#207bc5',
+    fillOpacity: 0.12
+  }).addTo(camadaRaio);
 }
 
 export function renderizarMarcadores(pontos, aoSelecionar) {
